@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentSkipListMap;
 
@@ -18,8 +19,8 @@ import java.util.concurrent.ConcurrentSkipListMap;
 @Slf4j
 public class MatchEngine {
 
-    private final Map<String, ConcurrentSkipListMap<Double, Deque<Order>>> buyBooks = new HashMap<>();
-    private final Map<String, ConcurrentSkipListMap<Double, Deque<Order>>> sellBooks = new HashMap<>();
+    private final Map<String, ConcurrentSkipListMap<Double, Deque<Order>>> buyBooks = new ConcurrentHashMap<>();
+    private final Map<String, ConcurrentSkipListMap<Double, Deque<Order>>> sellBooks = new ConcurrentHashMap<>();
 
     public List<TradeModel> match(Order incoming) {
         List<TradeModel> trades = new ArrayList<>();
