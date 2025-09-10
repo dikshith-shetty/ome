@@ -1,5 +1,6 @@
 
 # Order Match Engine (In-Memory)
+![Author](https://img.shields.io/badge/author-Dikshith%20Shetty-blue)
 
 A high-performance **limit order matching engine** built using **Java 21** and **Spring Boot 3.4+**, 
 designed to match buy and sell orders in real-time.  
@@ -15,11 +16,23 @@ is lost after a restart.
     - If two orders have the same price, the **oldest order** is matched first (FIFO).
 - Concurrent order matching using **threads from the global thread pool**.
 - **Whitelist-based asset validation** (configured in `application.properties`).
-- Thread-safe and concurrent using **ConcurrentSkipListMap** + `Deque`.
+- Thread-safe and concurrent using **ConcurrentHashMap + ConcurrentSkipListMap + Deque**.
 - Console logging for monitoring.
 - Fully tested with **JUnit5** including multithreaded integration tests.
-- Docker-ready deployment.
+---
 
+## Build and Run Instructions
+
+### 1. Build
+```bash
+mvn clean install
+```
+### 2. Run Locally
+```bash
+mvn spring-boot:run
+```
+open http://localhost:8080/swagger-ui.html in browser to access the swagger endpoints
+ 
 ---
 
 ## Technologies Used
@@ -30,32 +43,92 @@ is lost after a restart.
 | Maven            | Build tool |
 | SLF4J + logback  | Console logs |
 | JUnit 5          | Unit and integration testing |
-| Docker           | Containerization |
+
+
+---
+
+## API Endpoints
+
+### Create Order
+**POST /api/orders**  
+Request:
+```json
+{
+  "asset": "BTC",
+  "price": 43251.00,
+  "amount": 1.00,
+  "direction": "SELL"
+}
+```
+
+Response:
+```json
+{
+  "id": 0,
+  "timestamp": "2025-09-10T20:13:44.1304626Z",
+  "asset": "BTC",
+  "price": "43251.0",
+  "amount": "1.0",
+  "pendingAmount": "1.0",
+  "direction": "SELL",
+  "trades": []
+}
+```
+
+### Get Order by ID
+**GET /api/orders/{orderId}**  
+Response:
+```json
+{
+  "id": 2,
+  "timestamp": "2025-09-10T20:15:56.3420024Z",
+  "asset": "BTC",
+  "price": "43253.0",
+  "amount": "0.35",
+  "pendingAmount": "0.0",
+  "direction": "BUY",
+  "trades": [
+    {
+      "orderId": 0,
+      "amount": 0.35,
+      "price": 43251
+    }
+  ]
+}
+```
 
 ---
 
 ## Key Decisions & Justifications
 
 ### 1. Why In-Memory Only?
-> Requirement clearly states:  
+Requirement clearly states:  
 > *"Don't implement any persistence. All state will be lost after restart. That's okay."*
->
-> Therefore, **no database (even in-memory DB like H2)** is used. Orders and trades exist purely in JVM memory.
+
+Therefore, **no database (even in-memory DB like H2)** is used. Orders and trades exist purely in JVM memory.
 
 ---
 
 ### 2. Thread Safety & Performance
+- Used **ConcurrentHashMap**
+    - To store oders for each asset
+    - Efficient concurrent access and modification.
+    - Efficient Locking
+    - Thread Safe 
 - Used **ConcurrentSkipListMap**:
     - Sorted map by price.
     - Efficient concurrent access and modification.
     - Provides natural ordering for matching.
 - Used **Deque** inside each price level:
     - Maintains FIFO order for orders with the same price.
-- **One thread per asset** ensures:
-    - Each asset's orders are processed serially, avoiding conflicts.
+- **Fixed thread pool** ensures:
     - Multiple assets are matched **concurrently**.
-
-Thread pool size = number of whitelisted assets.
+    - reuses existing threads which avoids repeated creation/destruction of new thread.
+    - Limits the maximum number of concurrent threads which prevents your system from being overwhelmed.
+    - Tasks are queued and executed efficiently by worker threads.
+    - Even if you get a sudden burst of requests, the pool manages them without spawning uncontrolled threads.
+    - Can match concurrency to CPU level.
+    - All these makes application more predictable under load.
 
 ---
 
@@ -133,77 +206,5 @@ ome.matchengine.thread-pool-size=5
 
 ---
 
-## Build and Run Instructions
 
-### 1. Build
-```bash
-mvn clean install
-```
 
-### 2. Run Locally
-```bash
-mvn spring-boot:run
-```
-
----
-
-## API Endpoints
-
-### Create Order
-**POST /api/orders**  
-Request:
-```json
-{
-  "asset": "BTC",
-  "price": 25000.00,
-  "amount": 2.00,
-  "direction": "BUY"
-}
-```
-
-Response:
-```json
-{
-  "id": 1,
-  "timestamp": "2025-09-10T12:00:00",
-  "price": 25000.00,
-  "amount": 2.00,
-  "direction": "BUY",
-  "pendingAmount": 2.00,
-  "trades": []
-}
-```
-
-### Get Order by ID
-**GET /api/orders/{orderId}**  
-Response:
-```json
-{
-  "id": 1,
-  "timestamp": "2025-09-10T12:00:00",
-  "price": 25000.00,
-  "amount": 2.00,
-  "direction": "BUY",
-  "pendingAmount": 0.00,
-  "trades": [
-    {
-      "orderId": 2,
-      "amount": 2.00,
-      "price": 25000.00
-    }
-  ]
-}
-```
-
----
-
-## Running Tests
-
-```bash
-mvn test
-```
-
----
-
-## Author
-![Author](https://img.shields.io/badge/author-Dikshith%20Shetty-blue)
