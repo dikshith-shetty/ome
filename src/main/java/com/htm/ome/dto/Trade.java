@@ -1,12 +1,18 @@
 package com.htm.ome.dto;
 
-import lombok.Builder;
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
+@ToString
 @Builder
 public class Trade {
     private Long orderId;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "0.00")
     private Double amount;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "0.00")
     private Double price;
 }
