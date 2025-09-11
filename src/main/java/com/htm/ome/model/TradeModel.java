@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Data
 @Builder
@@ -13,5 +14,5 @@ public class TradeModel {
     private Long sellOrderId;
     private Double amount;
     private Double price;
-    private LocalDateTime createdAt;
+    private OffsetDateTime createdAt;
 }

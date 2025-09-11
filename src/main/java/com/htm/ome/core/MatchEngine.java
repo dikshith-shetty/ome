@@ -64,7 +64,7 @@ public class MatchEngine {
                         .sellOrderId(ask.getId())
                         .price(askPrice)
                         .amount(traded)
-                        .createdAt(LocalDateTime.now())
+                        .createdAt(OffsetDateTime.now(ZoneOffset.UTC))
                         .build();
                 trades.add(t);
                 log.info("Trade executed: buyId={} sellId={} asset={} price={} amount={}",
@@ -106,7 +106,7 @@ public class MatchEngine {
                         .sellOrderId(sellOrder.getId())
                         .price(bidPrice)
                         .amount(traded)
-                        .createdAt(LocalDateTime.now())
+                        .createdAt(OffsetDateTime.now(ZoneOffset.UTC))
                         .build();
                 trades.add(t);
                 log.info("Trade executed: buyId={} sellId={} asset={} price={} amount={}",
