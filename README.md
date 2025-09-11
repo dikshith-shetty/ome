@@ -135,6 +135,7 @@ Therefore, **no database (even in-memory DB like H2)** is used. Orders and trade
 ## High-Level Design
 
 ```mermaid
+%%{init: {'themeVariables': { 'fontSize': '12px', 'lineHeight': '14px' }}}%%
 flowchart TD
     Client[Client Request] --> Controller[REST Controller]
     Controller --> Service[Order Service]
@@ -147,6 +148,7 @@ flowchart TD
 
 ## Low-Level Design
 ```mermaid
+%%{init: {'themeVariables': { 'fontSize': '12px', 'lineHeight': '14px' }}}%%
 flowchart TD
     A[OrderController] -->|Receives HTTP Requests| B[OrderService]
     B -->|Validates & Routes Orders| C[MatchEngine]
@@ -160,6 +162,7 @@ flowchart TD
 ## Sequence Diagram
 
 ```mermaid
+%%{init: {'themeVariables': { 'fontSize': '12px', 'lineHeight': '14px' }}}%%
 sequenceDiagram
     participant Client
     participant Controller
